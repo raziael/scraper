@@ -1,8 +1,10 @@
-package peoplesrv
+package database
 
 //PersonService provides operations on strings.
-type PersonService interface {
+type PeopleDatabase interface {
 	GetPerson(string, string) (*Person, error)
+	Update(*Person) error
+	Delete(string)
 }
 
 //Person Represents the person being looked at

@@ -4,10 +4,10 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/raziael/scraper/peoplesrv"
+	"github.com/raziael/scraper/database"
 )
 
-func editHandler(service peoplesrv.PersonService) func(w http.ResponseWriter, r *http.Request) {
+func editHandler(dbsrv database.PeopleDatabase) func(w http.ResponseWriter, r *http.Request) {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		er := r.ParseForm()
@@ -15,11 +15,11 @@ func editHandler(service peoplesrv.PersonService) func(w http.ResponseWriter, r 
 			panic(er)
 		}
 
-		p := &peoplesrv.Person{}
+		p := &database.Person{}
 		var err error
 		if r.Method == "POST" {
 
-			p, err = service.GetPerson(r.FormValue("phone_number"), r.FormValue("person_name"))
+			p, err = dbsrv.GetPerson(r.FormValue("phone_number"), r.FormValue("person_name"))
 			if err != nil {
 				panic(err)
 			}

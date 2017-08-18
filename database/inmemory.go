@@ -1,34 +1,33 @@
 package database
 
 import (
+	"fmt"
 	"log"
 	"sync"
-
-	"github.com/raziael/scraper/peoplesrv"
 )
 
 var (
-	m map[string]*peoplesrv.Person
+	m map[string]*Person
 )
 
 func init() {
-	m = make(map[string]*peoplesrv.Person)
+	m = make(map[string]*Person)
 }
 
 type inmemoryDatabase struct {
 	mtx  sync.RWMutex
-	next peoplesrv.PersonService
+	next PeopleDatabase
 }
 
 //NewInmemoryDatabase returns a new inmemory database
-func NewInmemoryDatabase(scraper peoplesrv.PersonService) peoplesrv.PersonService {
+func NewInmemoryDatabase(scraper PeopleDatabase) PeopleDatabase {
 	return &inmemoryDatabase{
 		next: scraper,
 	}
 }
 
 //GetPerson returns a the person being looked at
-func (ld inmemoryDatabase) GetPerson(phone string, name string) (*peoplesrv.Person, error) {
+func (ld inmemoryDatabase) GetPerson(phone string, name string) (*Person, error) {
 	ld.mtx.RLock()
 	defer ld.mtx.RUnlock()
 	if p, ok := m[phone]; ok {
@@ -44,4 +43,14 @@ func (ld inmemoryDatabase) GetPerson(phone string, name string) (*peoplesrv.Pers
 	}
 
 	return p, nil
+}
+
+//Update method not implemented
+func (ld inmemoryDatabase) Update(person *Person) error {
+	return fmt.Errorf("Unimplemented method")
+}
+
+//Delete method not implemented yet
+func (ld inmemoryDatabase) Delete(phone string) {
+	fmt.Errorf("Unimplemented method")
 }

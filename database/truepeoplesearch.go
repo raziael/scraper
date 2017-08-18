@@ -1,10 +1,10 @@
-package scrapers
+package database
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
-	"github.com/raziael/scraper/peoplesrv"
 	"github.com/schollz/closestmatch"
 	"github.com/yhat/scrape"
 	"golang.org/x/net/html"
@@ -19,7 +19,7 @@ var (
 type TruePeopleScraper struct{}
 
 //GetPerson returns a person based on it's phone number, it multiple are found, uses the name to discriminate
-func (TruePeopleScraper) GetPerson(phone string, name string) (*peoplesrv.Person, error) {
+func (TruePeopleScraper) GetPerson(phone string, name string) (*Person, error) {
 	p, err := scrHtml(phone, name)
 	if err != nil {
 		return nil, err
@@ -31,8 +31,18 @@ func (TruePeopleScraper) GetPerson(phone string, name string) (*peoplesrv.Person
 
 }
 
+//Update not implemented
+func (TruePeopleScraper) Update(person *Person) error {
+	return fmt.Errorf("Method not implemented yet")
+}
+
+//Delete not implemented
+func (TruePeopleScraper) Delete(phone string) {
+	fmt.Println("Method not implemented")
+}
+
 //scrHtml is an html scraper for truepeoplesearch
-func scrHtml(phone string, name string) (*peoplesrv.Person, error) {
+func scrHtml(phone string, name string) (*Person, error) {
 	// request and parse the front page
 	root, err := getRoot(baseURL + "/results?phoneno=" + phone)
 	if err != nil {
@@ -52,11 +62,11 @@ func scrHtml(phone string, name string) (*peoplesrv.Person, error) {
 
 	// grab all articles and print them
 	cards := scrape.FindAll(root, matcher)
-	persons := make(map[string]*peoplesrv.Person)
+	persons := make(map[string]*Person)
 	bagSizes := []int{1, 2, 3}
 
 	for _, card := range cards {
-		person := &peoplesrv.Person{}
+		person := &Person{}
 
 		if err := parsePerson(person, card); err != nil {
 			log.Print(err)
@@ -85,7 +95,7 @@ func scrHtml(phone string, name string) (*peoplesrv.Person, error) {
 }
 
 //AppendAddress adds the full address for the given person
-func appendAddress(person *peoplesrv.Person) error {
+func appendAddress(person *Person) error {
 
 	root, err := getRoot(baseURL + person.DetailURL)
 	if err != nil {
@@ -131,7 +141,7 @@ func getRoot(url string) (*html.Node, error) {
 }
 
 //Node to person transformer
-func parsePerson(person *peoplesrv.Person, n *html.Node) error {
+func parsePerson(person *Person, n *html.Node) error {
 	person.DetailURL = scrape.Attr(n.Parent.Parent.Parent, "data-detail-link")
 	person.Name = scrape.Text(n)
 
