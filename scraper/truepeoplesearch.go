@@ -1,7 +1,6 @@
 package scraper
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -32,16 +31,6 @@ func (TruePeopleScraper) GetPerson(phone string, name string) (*database.Person,
 
 }
 
-//Update not implemented
-func (TruePeopleScraper) Update(person *database.Person) error {
-	return fmt.Errorf("Method not implemented yet")
-}
-
-//Delete not implemented
-func (TruePeopleScraper) Delete(phone string) {
-	fmt.Println("Method not implemented")
-}
-
 //scrHtml is an html scraper for truepeoplesearch
 func scrHtml(phone string, name string) (*database.Person, error) {
 	// request and parse the front page
@@ -69,7 +58,7 @@ func scrHtml(phone string, name string) (*database.Person, error) {
 	for _, card := range cards {
 		person := &database.Person{}
 
-		if err := parsePerson(person, card); err != nil {
+		if err := parsePerson(phone, person, card); err != nil {
 			log.Print(err)
 			continue
 		}
@@ -142,9 +131,10 @@ func getRoot(url string) (*html.Node, error) {
 }
 
 //Node to person transformer
-func parsePerson(person *database.Person, n *html.Node) error {
+func parsePerson(phone string, person *database.Person, n *html.Node) error {
 	person.DetailURL = scrape.Attr(n.Parent.Parent.Parent, "data-detail-link")
 	person.Name = scrape.Text(n)
+	person.Phone = phone
 
 	return nil
 }

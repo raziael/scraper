@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/raziael/scraper/database"
@@ -9,10 +10,11 @@ import (
 
 func main() {
 	scraper := &scraper.TruePeopleScraper{}
-	service := database.NewInmemoryDatabase(scraper)
+	dbsrv := database.NewInmemoryDatabase()
 
-	http.HandleFunc("/", editHandler(service))
+	http.HandleFunc("/", searchPersonHandler(dbsrv, scraper))
 
+	log.Println("Listening on port 8080")
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		panic(err)
 	}

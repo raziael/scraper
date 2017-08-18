@@ -11,5 +11,6 @@ type PeopleDatabase interface {
 type Person struct {
 	DetailURL string `json:"url"`
 	Name      string `json:"name"`
+	Phone     string `json:"phone"`
 	Address   string `json:"address"`
 }
