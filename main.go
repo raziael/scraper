@@ -4,10 +4,11 @@ import (
 	"net/http"
 
 	"github.com/raziael/scraper/database"
+	"github.com/raziael/scraper/scraper"
 )
 
 func main() {
-	scraper := &database.TruePeopleScraper{}
+	scraper := &scraper.TruePeopleScraper{}
 	service := database.NewInmemoryDatabase(scraper)
 
 	http.HandleFunc("/", editHandler(service))
