@@ -6,6 +6,19 @@ import (
 	"sync"
 )
 
+//Person Represents the person being looked at
+type Person struct {
+	DetailURL string `json:"url"`
+	Name      string `json:"name"`
+	Phone     string `json:"phone"`
+	Address   string `json:"address"`
+}
+
+//InmemoryDatabase holds a reference of previously scrapped elements
+type InmemoryDatabase struct {
+	mtx *sync.RWMutex
+}
+
 var (
 	m map[string]*Person
 )
@@ -14,18 +27,16 @@ func init() {
 	m = make(map[string]*Person)
 }
 
-type inmemoryDatabase struct {
-	mtx  sync.RWMutex
-	next PeopleDatabase
+//NewInmemoryDatabase returns a pointer
+func NewInmemoryDatabase() *InmemoryDatabase {
+	immdb := &InmemoryDatabase{}
+	immdb.mtx = &sync.RWMutex{}
+	return immdb
 }
 
-//NewInmemoryDatabase returns a new inmemory database
-func NewInmemoryDatabase() PeopleDatabase {
-	return &inmemoryDatabase{}
-}
-
-//GetPerson returns a the person being looked at
-func (ld inmemoryDatabase) GetPerson(phone string, name string) (*Person, error) {
+//FindOne extends inmemory database.
+//Returns a person if previously stored, otherwise returns an error
+func (ld InmemoryDatabase) FindOne(phone string, name string) (*Person, error) {
 	ld.mtx.RLock()
 	defer ld.mtx.RUnlock()
 	if p, ok := m[phone]; ok {
@@ -33,11 +44,11 @@ func (ld inmemoryDatabase) GetPerson(phone string, name string) (*Person, error)
 		return p, nil
 	}
 
-	return nil, fmt.Errorf("Record not found")
+	return nil, fmt.Errorf("Record not found in database")
 }
 
 //Update method not implemented
-func (ld inmemoryDatabase) Update(person *Person) error {
+func (ld InmemoryDatabase) Update(person *Person) error {
 	ld.mtx.Lock()
 	defer ld.mtx.Unlock()
 
@@ -47,9 +58,4 @@ func (ld inmemoryDatabase) Update(person *Person) error {
 
 	m[person.Phone] = person
 	return nil
-}
-
-//Delete method not implemented yet
-func (ld inmemoryDatabase) Delete(phone string) {
-	fmt.Errorf("Unimplemented method")
 }

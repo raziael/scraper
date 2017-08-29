@@ -13,10 +13,11 @@ func main() {
 	dbsrv := database.NewInmemoryDatabase()
 
 	http.HandleFunc("/", searchPersonHandler(dbsrv, scraper))
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./web/resources"))))
 
 	log.Println("Listening on port 8080")
 	if err := http.ListenAndServe(":8080", nil); err != nil {
-		panic(err)
+		log.Println(err)
 	}
 
 }
